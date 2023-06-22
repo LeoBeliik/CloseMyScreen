@@ -3,6 +3,8 @@ package com.leobeliik.closemyscreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -35,8 +37,8 @@ public class CloseMyScreen {
         Screen screen = event.getScreen();
         Minecraft minecraft = screen.getMinecraft();
         if (minecraft.level != null && minecraft.options.keyInventory.matches(event.getKeyCode(), event.getScanCode())) {
-            for (Widget renderable : screen.renderables) {
-                if (renderable instanceof EditBox searchBar && searchBar.isFocused()) {
+            for (GuiEventListener renderable : screen.children()) {
+                if (renderable instanceof EditBox searchBar && searchBar.canConsumeInput()) {
                     return;
                 }
             }
