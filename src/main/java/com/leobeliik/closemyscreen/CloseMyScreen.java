@@ -6,6 +6,7 @@ import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.PageButton;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ScreenEvent;
@@ -38,7 +39,7 @@ public class CloseMyScreen {
         Minecraft minecraft = screen.getMinecraft();
         if (minecraft.level != null && minecraft.options.keyInventory.matches(event.getKeyCode(), event.getScanCode())) {
             for (GuiEventListener renderable : screen.children()) {
-                if (renderable instanceof EditBox searchBar && searchBar.canConsumeInput()) {
+                if (renderable instanceof EditBox searchBar && searchBar.canConsumeInput() || renderable instanceof PageButton) {
                     return;
                 }
             }
