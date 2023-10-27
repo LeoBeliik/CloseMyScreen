@@ -2,9 +2,7 @@ package com.leobeliik.closemyscreen;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.PageButton;
 import net.minecraftforge.api.distmarker.Dist;
@@ -45,6 +43,24 @@ public class CloseMyScreen {
             }
             screen.onClose();
             event.setCanceled(true);
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onMouseClick(ScreenEvent.MouseButtonPressed event) {
+        Screen screen = event.getScreen();
+        Minecraft minecraft = screen.getMinecraft();
+        if (minecraft.level != null) {
+            for (GuiEventListener renderable : screen.children()) {
+                if ((renderable instanceof EditBox searchBar && searchBar.isFocused())) {
+                    System.out.println(searchBar.mouseClicked(event.getMouseX(), event.getMouseY(), event.getButton()));
+                } else if ((renderable instanceof PageButton pageBTN && pageBTN.isFocused())) {
+                    System.out.println("AAAA");
+                }
+            }/*
+            screen.onClose();
+            event.setCanceled(true);*/
         }
     }
 }
