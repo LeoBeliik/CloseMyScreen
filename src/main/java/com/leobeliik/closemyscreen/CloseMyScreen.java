@@ -53,7 +53,7 @@ public class CloseMyScreen {
         Minecraft minecraft = screen.getMinecraft();
         if (minecraft.level != null) {
             for (GuiEventListener renderable : screen.children()) {
-                if (renderable instanceof EditBox searchBar && searchBar.isFocused() && !searchBar.mouseClicked(event.getMouseX(), event.getMouseY(), event.getButton())) {
+                if (renderable instanceof EditBox searchBar && searchBar.isFocused() && !searchBar.mouseClicked(event.getMouseX(), event.getMouseY(), 0)) {
                     searchBar.setCanLoseFocus(true);
                     searchBar.setFocused(false);
                     break;
