@@ -53,14 +53,12 @@ public class CloseMyScreen {
         Minecraft minecraft = screen.getMinecraft();
         if (minecraft.level != null) {
             for (GuiEventListener renderable : screen.children()) {
-                if ((renderable instanceof EditBox searchBar && searchBar.isFocused())) {
-                    System.out.println(searchBar.mouseClicked(event.getMouseX(), event.getMouseY(), event.getButton()));
-                } else if ((renderable instanceof PageButton pageBTN && pageBTN.isFocused())) {
-                    System.out.println("AAAA");
+                if (renderable instanceof EditBox searchBar && searchBar.isFocused() && !searchBar.mouseClicked(event.getMouseX(), event.getMouseY(), event.getButton())) {
+                    searchBar.setCanLoseFocus(true);
+                    searchBar.setFocused(false);
+                    break;
                 }
-            }/*
-            screen.onClose();
-            event.setCanceled(true);*/
+            }
         }
     }
 }
