@@ -37,6 +37,7 @@ public class CloseMyScreen {
     // Define mod id in a common place for everything to reference
     static final String MODID = "closemyscreen";
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private static final String screenListFile = "config/closeMyScreen/close.dat";
 
     private static final KeyMapping screenKey = screenKey();
     private static List<String> noNoScrens = new ArrayList<>();
@@ -48,14 +49,13 @@ public class CloseMyScreen {
         ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class,
                 () -> new IExtensionPoint.DisplayTest(() -> "", (a, b) -> true));
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> modEventBus.addListener(this::keyRegistry));
-        noNoScrens.add("BookEditScreen");
+        noNoScrens.add("CreativeModeInventoryScreen");
         loadScreens().stream().filter(loadScreen -> !noNoScrens.contains(loadScreen)).forEach(loadScreen -> noNoScrens.add(loadScreen));
     }
 
     private static List<String> loadScreens() {
-        try (InputStreamReader reader = new InputStreamReader(new FileInputStream("closeMyScreen/doNotClose.dat"), StandardCharsets.UTF_8)) {
-            return gson.fromJson(new JsonReader(reader), new TypeToken<List<String>>() {
-            }.getType());
+        try (InputStreamReader reader = new InputStreamReader(new FileInputStream(screenListFile), StandardCharsets.UTF_8)) {
+            return gson.fromJson(new JsonReader(reader), new TypeToken<List<String>>() {}.getType());
         } catch (Exception e) {
             return noNoScrens;
         }
@@ -84,8 +84,8 @@ public class CloseMyScreen {
 
         if (screenKey.matches(event.getKeyCode(), event.getScanCode())) {
             noNoScrens.add(screenClass);
-            minecraft.player.sendSystemMessage(Component.nullToEmpty("Screen won't close with the Inv button"));
-        } else if (!noNoScrens.contains(screenClass)) {
+            minecraft.player.sendSystemMessage(Component.nullToEmpty("Screen will now close with the Inv button"));
+        } else if (noNoScrens.contains(screenClass)) {
             if (minecraft.level != null && minecraft.options.keyInventory.matches(event.getKeyCode(), event.getScanCode())) {
                 for (GuiEventListener renderable : screen.children()) {
                     if (renderable instanceof EditBox searchBar && searchBar.canConsumeInput()) {
@@ -121,8 +121,8 @@ public class CloseMyScreen {
     }
 
     private static void saveScreens() {
-        new File("closeMyScreen/").mkdirs();
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream("closeMyScreen/doNotClose.dat"), StandardCharsets.UTF_8)) {
+        new File("config/closeMyScreen/").mkdirs();
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(screenListFile), StandardCharsets.UTF_8)) {
             writer.write(gson.toJson(noNoScrens));
         } catch (IOException ignored) {}
     }
