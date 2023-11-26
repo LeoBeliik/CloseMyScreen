@@ -107,7 +107,7 @@ public class CloseMyScreen {
             for (GuiEventListener renderable : screen.children()) {
                 if (renderable instanceof EditBox searchBar && searchBar.isFocused() && !searchBar.mouseClicked(event.getMouseX(), event.getMouseY(), 0)) {
                     searchBar.setCanLoseFocus(true);
-                    searchBar.setFocused(false);
+                    searchBar.setFocus(false);
                     break;
                 }
             }
