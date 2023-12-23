@@ -25,7 +25,6 @@ import net.minecraftforge.fml.IExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -69,7 +68,7 @@ public class CloseMyScreen {
     @OnlyIn(Dist.CLIENT)
     private static KeyMapping screenKey() {
         return new KeyMapping(
-                String.valueOf("Don't close screen"),
+                ("Don't close screen"),
                 InputConstants.Type.KEYSYM,
                 InputConstants.UNKNOWN.getValue(),
                 "key.categories.misc");
@@ -82,7 +81,7 @@ public class CloseMyScreen {
         Minecraft minecraft = screen.getMinecraft();
         String screenClass = screen.getClass().getName().split("[.]")[screen.getClass().getName().split("[.]").length - 1];
 
-        if (screenKey.matches(event.getKeyCode(), event.getScanCode())) {
+        if (screenKey.matches(event.getKeyCode(), event.getScanCode()) && minecraft.player != null) {
             noNoScrens.add(screenClass);
             minecraft.player.sendSystemMessage(Component.nullToEmpty("Screen will now close with the Inv button"));
         } else if (noNoScrens.contains(screenClass)) {
@@ -120,10 +119,12 @@ public class CloseMyScreen {
         saveScreens();
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private static void saveScreens() {
         new File("config/closeMyScreen/").mkdirs();
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(screenListFile), StandardCharsets.UTF_8)) {
             writer.write(gson.toJson(noNoScrens));
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
     }
 }
