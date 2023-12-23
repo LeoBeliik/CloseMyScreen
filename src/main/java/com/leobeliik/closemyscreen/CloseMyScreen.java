@@ -25,10 +25,10 @@ import net.minecraftforge.fml.IExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -53,6 +53,8 @@ public class CloseMyScreen {
         loadScreens().stream().filter(loadScreen -> !noNoScrens.contains(loadScreen)).forEach(loadScreen -> noNoScrens.add(loadScreen));
     }
 
+
+    @SuppressWarnings("UnstableApiUsage")
     private static List<String> loadScreens() {
         try (InputStreamReader reader = new InputStreamReader(new FileInputStream(screenListFile), StandardCharsets.UTF_8)) {
             return gson.fromJson(new JsonReader(reader), new TypeToken<List<String>>() {}.getType());
@@ -69,7 +71,7 @@ public class CloseMyScreen {
     @OnlyIn(Dist.CLIENT)
     private static KeyMapping screenKey() {
         return new KeyMapping(
-                String.valueOf("Don't close screen"),
+                ("Don't close screen"),
                 InputConstants.Type.KEYSYM,
                 InputConstants.UNKNOWN.getValue(),
                 "key.categories.misc");
@@ -82,7 +84,7 @@ public class CloseMyScreen {
         Minecraft minecraft = screen.getMinecraft();
         String screenClass = screen.getClass().getName().split("[.]")[screen.getClass().getName().split("[.]").length - 1];
 
-        if (screenKey.matches(event.getKeyCode(), event.getScanCode())) {
+        if (screenKey.matches(event.getKeyCode(), event.getScanCode()) && minecraft.player != null) {
             noNoScrens.add(screenClass);
             minecraft.player.sendSystemMessage(Component.nullToEmpty("Screen will now close with the Inv button"));
         } else if (noNoScrens.contains(screenClass)) {
@@ -103,13 +105,17 @@ public class CloseMyScreen {
     public void onMouseClick(ScreenEvent.MouseButtonPressed event) {
         Screen screen = event.getScreen();
         Minecraft minecraft = screen.getMinecraft();
-        if (minecraft.level != null) {
-            for (GuiEventListener renderable : screen.children()) {
-                if (renderable instanceof EditBox searchBar && searchBar.isFocused() && !searchBar.mouseClicked(event.getMouseX(), event.getMouseY(), 0)) {
-                    searchBar.setCanLoseFocus(true);
-                    searchBar.setFocus(false);
-                    break;
+        if (minecraft.level != null && minecraft.player != null) {
+            try {
+                for (GuiEventListener renderable : screen.children()) {
+                    if (renderable instanceof EditBox searchBar && searchBar.isFocused() && !searchBar.mouseClicked(event.getMouseX(), event.getMouseY(), 0)) {
+                        searchBar.setCanLoseFocus(true);
+                        searchBar.setFocus(false);
+                        break;
+                    }
                 }
+            } catch (ConcurrentModificationException e) {
+                minecraft.player.sendSystemMessage(Component.nullToEmpty("Woops"));
             }
         }
     }
@@ -120,6 +126,7 @@ public class CloseMyScreen {
         saveScreens();
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private static void saveScreens() {
         new File("config/closeMyScreen/").mkdirs();
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(screenListFile), StandardCharsets.UTF_8)) {
