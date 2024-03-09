@@ -68,7 +68,7 @@ public class CloseMyScreen {
     @OnlyIn(Dist.CLIENT)
     private static KeyMapping screenKey() {
         return new KeyMapping(
-                ("Don't close screen"),
+                ("Do close screen"),
                 InputConstants.Type.KEYSYM,
                 InputConstants.UNKNOWN.getValue(),
                 "key.categories.misc");
